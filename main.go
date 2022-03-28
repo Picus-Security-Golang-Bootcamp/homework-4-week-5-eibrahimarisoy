@@ -2,59 +2,37 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"net/http"
 	"os"
 	"os/signal"
 	"time"
 
-	"github.com/gorilla/handlers"
-	"github.com/gorilla/mux"
+	"github.com/Picus-Security-Golang-Bootcamp/homework-4-week-5-eibrahimarisoy/app"
+	"github.com/joho/godotenv"
 )
 
 func main() {
+	// Set environment variables
+	if err := godotenv.Load(); err != nil {
+		log.Fatal("Error loading .env file")
+	}
 
-	r := mux.NewRouter()
-	handlers.AllowedOrigins([]string{"*"})
-	handlers.AllowedMethods([]string{"GET", "POST", "DELETE", "PUT"})
+	a := app.App{}
+	if err := a.Initialize(); err != nil {
+		log.Fatal(err)
+	}
 
 	srv := &http.Server{
 		Addr:         ":8090",
 		WriteTimeout: 15 * time.Second,
 		ReadTimeout:  15 * time.Second,
 		IdleTimeout:  60 * time.Second,
-		Handler:      r,
+		Handler:      a.Router,
 	}
 
-	// routers
-	a := r.PathPrefix("/authors").Subrouter()
-	a.HandleFunc("/", authorList).Methods(http.MethodGet)
-	// a.HandleFunc("/", authorCreate).Methods(http.MethodPost)
-	// a.HandleFunc("/{id}", authorGet).Methods(http.MethodGet)
-	// a.HandleFunc("/{id}", authorUpdate).Methods(http.MethodPut)
-	// a.HandleFunc("/{id}", authorDelete).Methods(http.MethodDelete)
-
-	// // routes
-	// b := r.PathPrefix("/books").Subrouter()
-	// b.HandleFunc("/", bookCreate).Methods(http.MethodPost)
-	// b.HandleFunc("/", bookList).Methods(http.MethodGet)
-	// b.HandleFunc("/{id}", bookGet).Methods(http.MethodGet)
-	// b.HandleFunc("/{id}", bookUpdate).Methods(http.MethodPut)
-	// b.HandleFunc("/{id}", bookDelete).Methods(http.MethodDelete)
-
-	go func() {
-		if err := srv.ListenAndServe(); err != nil {
-			log.Println(err)
-		}
-	}()
-
+	go a.Run(srv)
 	ShutdownServer(srv, time.Second*10)
-
-}
-
-func authorList(w http.ResponseWriter, req *http.Request) {
-	fmt.Println("hello")
 
 }
 
