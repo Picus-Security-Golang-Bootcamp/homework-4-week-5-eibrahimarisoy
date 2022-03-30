@@ -1,7 +1,7 @@
-package repos
+package service
 
 import (
-	"github.com/Picus-Security-Golang-Bootcamp/homework-4-week-5-eibrahimarisoy/pkg/domain/entities"
+	"github.com/Picus-Security-Golang-Bootcamp/homework-4-week-5-eibrahimarisoy/model"
 	"gorm.io/gorm"
 )
 
@@ -16,18 +16,18 @@ func NewBookRepository(db *gorm.DB) *BookRepository {
 
 // Migrations runs the database migrations
 func (r *BookRepository) Migrations() {
-	r.db.AutoMigrate(&entities.Book{})
+	r.db.AutoMigrate(&model.Book{})
 }
 
 // InsertSampleData inserts sample data into the database
-func (r *BookRepository) InsertSampleData(b entities.Book) {
-	r.db.Unscoped().Omit("Author").Where(entities.Book{Name: b.Name, StockCode: b.StockCode}).
+func (r *BookRepository) InsertSampleData(b model.Book) {
+	r.db.Unscoped().Omit("Author").Where(model.Book{Name: b.Name, StockCode: b.StockCode}).
 		FirstOrCreate(&b)
 }
 
 // GetAuthorWithoutAuthorInformation returns only books
-func (r *BookRepository) GetAllBooksWithoutAuthorInformation() ([]entities.Book, error) {
-	var books []entities.Book
+func (r *BookRepository) GetAllBooksWithoutAuthorInformation() ([]model.Book, error) {
+	var books []model.Book
 	result := r.db.Find(&books)
 
 	if result.Error != nil {
@@ -37,8 +37,8 @@ func (r *BookRepository) GetAllBooksWithoutAuthorInformation() ([]entities.Book,
 }
 
 // GetBooksWithAuthor returns books with author
-func (r *BookRepository) GetBooksWithAuthor() ([]entities.Book, error) {
-	var books []entities.Book
+func (r *BookRepository) GetBooksWithAuthor() ([]model.Book, error) {
+	var books []model.Book
 
 	result := r.db.Unscoped().Preload("Author").Order("id").Find(&books)
 	if result.Error != nil {
@@ -48,8 +48,8 @@ func (r *BookRepository) GetBooksWithAuthor() ([]entities.Book, error) {
 }
 
 // FindByName returns books by name
-func (r *BookRepository) FindByName(keyword string) ([]entities.Book, error) {
-	var books []entities.Book
+func (r *BookRepository) FindByName(keyword string) ([]model.Book, error) {
+	var books []model.Book
 
 	result := r.db.Preload("Author").Where("name ILIKE ?", "%"+keyword+"%").Find(&books)
 	if result.Error != nil {
@@ -59,30 +59,30 @@ func (r *BookRepository) FindByName(keyword string) ([]entities.Book, error) {
 }
 
 // GetByIDWithAuthor returns books by ID with author
-func (r *BookRepository) GetByIDWithAuthor(id int) (entities.Book, error) {
-	var book entities.Book
+func (r *BookRepository) GetByIDWithAuthor(id int) (model.Book, error) {
+	var book model.Book
 
 	result := r.db.Unscoped().Preload("Author").Where("id = ?", id).First(&book)
 	if result.Error != nil {
-		return entities.Book{}, result.Error
+		return model.Book{}, result.Error
 	}
 	return book, nil
 }
 
 // GetByIDWithAuthor returns books by ID
-func (r *BookRepository) GetByID(id int) (entities.Book, error) {
-	var book entities.Book
+func (r *BookRepository) GetByID(id int) (model.Book, error) {
+	var book model.Book
 
 	result := r.db.Unscoped().Where("id = ?", id).First(&book)
 	if result.Error != nil {
-		return entities.Book{}, result.Error
+		return model.Book{}, result.Error
 	}
 	return book, nil
 }
 
 // DeleteBookByID deletes book by ID
 func (r *BookRepository) DeleteBookByID(id int) error {
-	result := r.db.Where("id = ?", id).Delete(&entities.Book{})
+	result := r.db.Where("id = ?", id).Delete(&model.Book{})
 	if result.Error != nil {
 		return result.Error
 	}
@@ -90,7 +90,7 @@ func (r *BookRepository) DeleteBookByID(id int) error {
 }
 
 // UpdateBookStockCountByID updates book stock count by ID
-func (r *BookRepository) UpdateBookStockCountByID(id, newStockCount int) (entities.Book, error) {
+func (r *BookRepository) UpdateBookStockCountByID(id, newStockCount int) (model.Book, error) {
 	instance, _ := r.GetByIDWithAuthor(id)
 	instance.StockCount = uint(newStockCount)
 	r.db.Model(&instance).Update("stock_count", newStockCount)
@@ -101,7 +101,7 @@ func (r *BookRepository) UpdateBookStockCountByID(id, newStockCount int) (entiti
 // **************EXTRA QUERIES************** //
 
 // UpdateBookName updates book name
-func (r *BookRepository) UpdateBookName(book entities.Book, newName string) (entities.Book, error) {
+func (r *BookRepository) UpdateBookName(book model.Book, newName string) (model.Book, error) {
 	book.Name = newName
 	r.db.Model(&book).Update("name", newName)
 
@@ -109,7 +109,7 @@ func (r *BookRepository) UpdateBookName(book entities.Book, newName string) (ent
 }
 
 // UpdateBookPrice updates book price
-func (r *BookRepository) UpdateBookPrice(book entities.Book, newPrice float64) (entities.Book, error) {
+func (r *BookRepository) UpdateBookPrice(book model.Book, newPrice float64) (model.Book, error) {
 	book.Price = newPrice
 	r.db.Model(&book).Update("price", newPrice)
 
@@ -117,8 +117,8 @@ func (r *BookRepository) UpdateBookPrice(book entities.Book, newPrice float64) (
 }
 
 // FilterBookByPriceRange filters book by price range
-func (r *BookRepository) FilterBookByPriceRange(min, max float64) ([]entities.Book, error) {
-	var books []entities.Book
+func (r *BookRepository) FilterBookByPriceRange(min, max float64) ([]model.Book, error) {
+	var books []model.Book
 
 	result := r.db.Unscoped().Where("price BETWEEN ? AND ?", min, max).Find(&books)
 	if result.Error != nil {
@@ -128,8 +128,8 @@ func (r *BookRepository) FilterBookByPriceRange(min, max float64) ([]entities.Bo
 }
 
 // GetBooksWithIDs returns books by IDs
-func (r *BookRepository) GetBooksWithIDs(ids []int) ([]entities.Book, error) {
-	var books []entities.Book
+func (r *BookRepository) GetBooksWithIDs(ids []int) ([]model.Book, error) {
+	var books []model.Book
 
 	result := r.db.Where("id IN ?", ids).Find(&books)
 	if result.Error != nil {
@@ -139,8 +139,8 @@ func (r *BookRepository) GetBooksWithIDs(ids []int) ([]entities.Book, error) {
 }
 
 // FilterBookByCreatedAtRange filters book by created at range
-func (r *BookRepository) FilterBookByCreatedAtRange(min, max string) ([]entities.Book, error) {
-	var books []entities.Book
+func (r *BookRepository) FilterBookByCreatedAtRange(min, max string) ([]model.Book, error) {
+	var books []model.Book
 
 	result := r.db.Unscoped().Where("created_at BETWEEN ? AND ?", min, max).Find(&books)
 	if result.Error != nil {
@@ -150,8 +150,8 @@ func (r *BookRepository) FilterBookByCreatedAtRange(min, max string) ([]entities
 }
 
 // SearchBookByNameAndStockCode searches book by name and stock code
-func (r *BookRepository) SearchBookByNameOrStockCode(keyword string) ([]entities.Book, error) {
-	var books []entities.Book
+func (r *BookRepository) SearchBookByNameOrStockCode(keyword string) ([]model.Book, error) {
+	var books []model.Book
 
 	result := r.db.Unscoped().Where("name ILIKE ? ", "%"+keyword+"%").Or("stock_code ILIKE ?", "%"+keyword+"%").Find(&books)
 	if result.Error != nil {
@@ -161,8 +161,8 @@ func (r *BookRepository) SearchBookByNameOrStockCode(keyword string) ([]entities
 }
 
 // GetAllBooksOrderByPriceAsc returns all books order by price asc
-func (r *BookRepository) GetAllBooksOrderByPriceAsc() ([]entities.Book, error) {
-	var books []entities.Book
+func (r *BookRepository) GetAllBooksOrderByPriceAsc() ([]model.Book, error) {
+	var books []model.Book
 
 	result := r.db.Unscoped().Order("price asc").Find(&books)
 	if result.Error != nil {
@@ -172,8 +172,8 @@ func (r *BookRepository) GetAllBooksOrderByPriceAsc() ([]entities.Book, error) {
 }
 
 // GetFirstTenBooks returns first ten books
-func (r *BookRepository) GetFirstTenBooks() ([]entities.Book, error) {
-	var books []entities.Book
+func (r *BookRepository) GetFirstTenBooks() ([]model.Book, error) {
+	var books []model.Book
 
 	result := r.db.Unscoped().Limit(10).Find(&books)
 	if result.Error != nil {
@@ -186,7 +186,7 @@ func (r *BookRepository) GetFirstTenBooks() ([]entities.Book, error) {
 func (r *BookRepository) GetCount() (int64, error) {
 	var count int64
 
-	result := r.db.Model(&entities.Book{}).Count(&count)
+	result := r.db.Model(&model.Book{}).Count(&count)
 	if result.Error != nil {
 		return 0, result.Error
 	}
@@ -197,7 +197,7 @@ func (r *BookRepository) GetCount() (int64, error) {
 func (r *BookRepository) GetTotalStockValue() (int64, error) {
 	var count int64
 
-	err := r.db.Model(&entities.Book{}).Select("sum(stock_count)").Row().Scan(&count)
+	err := r.db.Model(&model.Book{}).Select("sum(stock_count)").Row().Scan(&count)
 	if err != nil {
 		return 0, err
 	}
@@ -208,7 +208,7 @@ func (r *BookRepository) GetTotalStockValue() (int64, error) {
 func (r *BookRepository) GetAvgPrice() (float64, error) {
 	var avgPrice float64
 
-	err := r.db.Model(&entities.Book{}).Select("avg(price)").Row().Scan(&avgPrice)
+	err := r.db.Model(&model.Book{}).Select("avg(price)").Row().Scan(&avgPrice)
 	if err != nil {
 		return 0, err
 	}

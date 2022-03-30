@@ -1,15 +1,15 @@
-package db
+package database
 
 import (
 	"fmt"
 	"os"
 
+	"github.com/Picus-Security-Golang-Bootcamp/homework-4-week-5-eibrahimarisoy/model"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
 
 func NewPsqlDB() (*gorm.DB, error) {
-
 	dataSourceName := fmt.Sprintf("host=%s port=%s user=%s dbname=%s sslmode=disable password=%s",
 		os.Getenv("DB_HOST"),
 		os.Getenv("DB_PORT"),
@@ -32,6 +32,7 @@ func NewPsqlDB() (*gorm.DB, error) {
 	if err := sqlDB.Ping(); err != nil {
 		return nil, err
 	}
+	db.AutoMigrate(&model.Author{}, &model.Book{})
 
 	return db, nil
 }

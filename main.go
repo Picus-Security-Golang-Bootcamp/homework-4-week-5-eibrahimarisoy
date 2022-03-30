@@ -8,7 +8,9 @@ import (
 	"os/signal"
 	"time"
 
-	"github.com/Picus-Security-Golang-Bootcamp/homework-4-week-5-eibrahimarisoy/app"
+	"github.com/Picus-Security-Golang-Bootcamp/homework-4-week-5-eibrahimarisoy/pkg/database"
+	"github.com/Picus-Security-Golang-Bootcamp/homework-4-week-5-eibrahimarisoy/pkg/router"
+
 	"github.com/joho/godotenv"
 )
 
@@ -18,20 +20,27 @@ func main() {
 		log.Fatal("Error loading .env file")
 	}
 
-	a := app.App{}
-	if err := a.Initialize(); err != nil {
+	db, err := database.NewPsqlDB()
+	if err != nil {
 		log.Fatal(err)
 	}
 
+	r := router.InitializeRoutes(db)
+
 	srv := &http.Server{
-		Addr:         ":8090",
-		WriteTimeout: 15 * time.Second,
-		ReadTimeout:  15 * time.Second,
-		IdleTimeout:  60 * time.Second,
-		Handler:      a.Router,
+		Addr:         "0.0.0.0:8090",
+		WriteTimeout: time.Second * 15,
+		ReadTimeout:  time.Second * 15,
+		IdleTimeout:  time.Second * 60,
+		Handler:      r,
 	}
 
-	go a.Run(srv)
+	go func() {
+		if err := srv.ListenAndServe(); err != nil {
+			log.Println(err)
+		}
+	}()
+
 	ShutdownServer(srv, time.Second*10)
 
 }
