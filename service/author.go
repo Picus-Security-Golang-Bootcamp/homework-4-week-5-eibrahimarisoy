@@ -75,7 +75,7 @@ func GetAuthorsWithBooks(db *gorm.DB) ([]model.Author, error) {
 
 // **************EXTRA QUERIES************** //
 
-// DeleteAuthorByID deletes author by id
+// DeleteByID deletes author by id
 func DeleteAuthorByID(db *gorm.DB, id int) error {
 	result := db.Where("id = ?", id).Delete(&model.Author{})
 	if result.Error != nil {

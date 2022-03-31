@@ -37,3 +37,20 @@ func (c *Controller) BookGet(w http.ResponseWriter, req *http.Request) {
 	RespondWithJSON(w, http.StatusOK, results)
 
 }
+
+// BookDelete controller
+func (c *Controller) BookDelete(w http.ResponseWriter, req *http.Request) {
+	vars := mux.Vars(req)
+
+	id, _ := strconv.Atoi(vars["id"])
+
+	err := service.DeleteBookByID(c.DB, id)
+
+	if err != nil {
+		RespondWithError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	RespondWithJSON(w, http.StatusNoContent, nil)
+
+}

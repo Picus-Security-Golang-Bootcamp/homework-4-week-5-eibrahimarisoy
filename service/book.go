@@ -66,14 +66,14 @@ func GetByIDWithAuthor(db *gorm.DB, id int) (model.Book, error) {
 // 	return book, nil
 // }
 
-// // DeleteBookByID deletes book by ID
-// func DeleteBookByID(id int) error {
-// 	result := db.Where("id = ?", id).Delete(&model.Book{})
-// 	if result.Error != nil {
-// 		return result.Error
-// 	}
-// 	return nil
-// }
+// DeleteBookByID deletes book by ID
+func DeleteBookByID(db *gorm.DB, id int) error {
+	result := db.Where("id = ?", id).Delete(&model.Book{})
+	if result.Error != nil {
+		return result.Error
+	}
+	return nil
+}
 
 // // UpdateBookStockCountByID updates book stock count by ID
 // func UpdateBookStockCountByID(id, newStockCount int) (model.Book, error) {
