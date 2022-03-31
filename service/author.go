@@ -20,23 +20,32 @@ func Migrations(db *gorm.DB) {
 	db.AutoMigrate(&model.Author{})
 }
 
-// InsertSampleData inserts sample data into the database
-func InsertSampleData(db *gorm.DB, author *model.Author) model.Author {
-	result := db.Unscoped().Where("name = ?", author.Name).FirstOrCreate(author)
+// AuthorCreate creates an author
+func CreateAuthor(db *gorm.DB, author *model.Author) (*model.Author, error) {
+	result := db.Where("name = ?", author.Name).FirstOrCreate(author)
 
 	if result.Error != nil {
-		panic(result.Error) // TODO: handle error
+		return nil, result.Error
 	}
-	return *author
+
+	return author, nil
 }
 
 // GetByID returns an author by id
-func GetByID(db *gorm.DB, id int) (model.Author, error) {
+func GetAuthorByID(db *gorm.DB, id int) (model.Author, error) {
 	var author model.Author
 
 	result := db.Where("id = ?", id).First(&author)
 	if result.Error != nil {
 		return model.Author{}, result.Error
+	}
+	return author, nil
+}
+
+// UpdateAuthorByID updates author by id
+func UpdateAuthor(db *gorm.DB, author *model.Author) (*model.Author, error) {
+	if err := db.Save(&author).Error; err != nil {
+		return author, err
 	}
 	return author, nil
 }

@@ -16,8 +16,8 @@ type Book struct {
 	Price      float64 `json:"price"`
 	StockCode  string  `json:"stock_code" gorm:"unique"`
 	ISBN       string  `gorm:"unique"`
-	AuthorID   uint
-	Author     Author `gorm:"OnDelete:SET NULL"`
+	AuthorID   uint    `json:"author_id"`
+	Author     Author  `gorm:"OnDelete:SET NULL"`
 }
 
 func (Book) TableName() string {

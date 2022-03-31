@@ -18,17 +18,17 @@ func InitializeRoutes(db *gorm.DB) *mux.Router {
 	api := controller.Controller{DB: db}
 	// routers
 	author := r.PathPrefix("/authors").Subrouter()
-	author.HandleFunc("/", api.AuthorList).Methods(http.MethodGet)
-	// author.HandleFunc("/", authorCreate).Methods(http.MethodPost)
-	author.HandleFunc("/{id}", api.AuthorGet).Methods(http.MethodGet)
-	// author.HandleFunc("/{id}", authorUpdate).Methods(http.MethodPut)
-	author.HandleFunc("/{id}", api.AuthorDelete).Methods(http.MethodDelete)
+	author.HandleFunc("/", api.ListAuthor).Methods(http.MethodGet)
+	author.HandleFunc("/", api.CreateAuthor).Methods(http.MethodPost)
+	author.HandleFunc("/{id}", api.GetAuthor).Methods(http.MethodGet)
+	author.HandleFunc("/{id}", api.UpdateAuthor).Methods(http.MethodPut)
+	author.HandleFunc("/{id}", api.DeleteAuthor).Methods(http.MethodDelete)
 
 	book := r.PathPrefix("/books").Subrouter()
-	// book.HandleFunc("/", bookCreate).Methods(http.MethodPost)
-	book.HandleFunc("/", api.BookList).Methods(http.MethodGet)
-	book.HandleFunc("/{id}", api.BookGet).Methods(http.MethodGet)
-	// book.HandleFunc("/{id}", bookUpdate).Methods(http.MethodPut)
-	book.HandleFunc("/{id}", api.BookDelete).Methods(http.MethodDelete)
+	book.HandleFunc("/", api.CreateBook).Methods(http.MethodPost)
+	book.HandleFunc("/", api.ListBook).Methods(http.MethodGet)
+	book.HandleFunc("/{id}", api.GetBook).Methods(http.MethodGet)
+	book.HandleFunc("/{id}", api.UpdateBook).Methods(http.MethodPut)
+	book.HandleFunc("/{id}", api.DeleteBook).Methods(http.MethodDelete)
 	return r
 }

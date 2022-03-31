@@ -5,11 +5,16 @@ import (
 	"gorm.io/gorm"
 )
 
-// // InsertSampleData inserts sample data into the database
-// func InsertSampleData(b model.Book) {
-// 	db.Unscoped().Omit("Author").Where(model.Book{Name: b.Name, StockCode: b.StockCode}).
-// 		FirstOrCreate(&b)
-// }
+// InsertSampleData inserts sample data into the database
+func SaveBook(db *gorm.DB, book *model.Book) (*model.Book, error) {
+	result := db.Omit("Author").Where(model.Book{Name: book.Name, StockCode: book.StockCode}).
+		FirstOrCreate(&book)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	return book, nil
+}
 
 // GetAuthorWithoutAuthorInformation returns only books
 // func GetAllBooksWithoutAuthorInformation() ([]model.Book, error) {
@@ -55,16 +60,16 @@ func GetByIDWithAuthor(db *gorm.DB, id int) (model.Book, error) {
 	return book, nil
 }
 
-// // GetByIDWithAuthor returns books by ID
-// func GetByID(id int) (model.Book, error) {
-// 	var book model.Book
+// GetBookByID returns books by ID
+func GetBookByID(db *gorm.DB, id int) (model.Book, error) {
+	var book model.Book
 
-// 	result := db.Unscoped().Where("id = ?", id).First(&book)
-// 	if result.Error != nil {
-// 		return model.Book{}, result.Error
-// 	}
-// 	return book, nil
-// }
+	result := db.Where("id = ?", id).First(&book)
+	if result.Error != nil {
+		return model.Book{}, result.Error
+	}
+	return book, nil
+}
 
 // DeleteBookByID deletes book by ID
 func DeleteBookByID(db *gorm.DB, id int) error {
@@ -73,6 +78,14 @@ func DeleteBookByID(db *gorm.DB, id int) error {
 		return result.Error
 	}
 	return nil
+}
+
+// UpdateBookByID updates book by ID
+func UpdateBookByID(db *gorm.DB, book *model.Book) (*model.Book, error) {
+	if err := db.Save(&book).Error; err != nil {
+		return book, err
+	}
+	return book, nil
 }
 
 // // UpdateBookStockCountByID updates book stock count by ID
