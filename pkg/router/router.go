@@ -24,11 +24,10 @@ func InitializeRoutes(db *gorm.DB) *mux.Router {
 	// author.HandleFunc("/{id}", authorUpdate).Methods(http.MethodPut)
 	// author.HandleFunc("/{id}", authorDelete).Methods(http.MethodDelete)
 
-	// // routes
-	// book := r.PathPrefix("/books").Subrouter()
+	book := r.PathPrefix("/books").Subrouter()
 	// book.HandleFunc("/", bookCreate).Methods(http.MethodPost)
-	// book.HandleFunc("/", bookList).Methods(http.MethodGet)
-	// book.HandleFunc("/{id}", bookGet).Methods(http.MethodGet)
+	book.HandleFunc("/", api.BookList).Methods(http.MethodGet)
+	book.HandleFunc("/{id}", api.BookGet).Methods(http.MethodGet)
 	// book.HandleFunc("/{id}", bookUpdate).Methods(http.MethodPut)
 	// book.HandleFunc("/{id}", bookDelete).Methods(http.MethodDelete)
 	return r

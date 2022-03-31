@@ -5,212 +5,198 @@ import (
 	"gorm.io/gorm"
 )
 
-type BookRepository struct {
-	db *gorm.DB
-}
-
-// NewBookRepository returns a new BookRepository
-func NewBookRepository(db *gorm.DB) *BookRepository {
-	return &BookRepository{db: db}
-}
-
-// Migrations runs the database migrations
-func (r *BookRepository) Migrations() {
-	r.db.AutoMigrate(&model.Book{})
-}
-
-// InsertSampleData inserts sample data into the database
-func (r *BookRepository) InsertSampleData(b model.Book) {
-	r.db.Unscoped().Omit("Author").Where(model.Book{Name: b.Name, StockCode: b.StockCode}).
-		FirstOrCreate(&b)
-}
+// // InsertSampleData inserts sample data into the database
+// func InsertSampleData(b model.Book) {
+// 	db.Unscoped().Omit("Author").Where(model.Book{Name: b.Name, StockCode: b.StockCode}).
+// 		FirstOrCreate(&b)
+// }
 
 // GetAuthorWithoutAuthorInformation returns only books
-func (r *BookRepository) GetAllBooksWithoutAuthorInformation() ([]model.Book, error) {
-	var books []model.Book
-	result := r.db.Find(&books)
+// func GetAllBooksWithoutAuthorInformation() ([]model.Book, error) {
+// 	var books []model.Book
+// 	result := db.Find(&books)
 
-	if result.Error != nil {
-		return nil, result.Error
-	}
-	return books, nil
-}
+// 	if result.Error != nil {
+// 		return nil, result.Error
+// 	}
+// 	return books, nil
+// }
 
 // GetBooksWithAuthor returns books with author
-func (r *BookRepository) GetBooksWithAuthor() ([]model.Book, error) {
+func GetBooksWithAuthor(db *gorm.DB) ([]model.Book, error) {
 	var books []model.Book
 
-	result := r.db.Unscoped().Preload("Author").Order("id").Find(&books)
+	result := db.Preload("Author").Order("id").Find(&books)
 	if result.Error != nil {
 		return nil, result.Error
 	}
 	return books, nil
 }
 
-// FindByName returns books by name
-func (r *BookRepository) FindByName(keyword string) ([]model.Book, error) {
-	var books []model.Book
+// // FindByName returns books by name
+// func FindByName(keyword string) ([]model.Book, error) {
+// 	var books []model.Book
 
-	result := r.db.Preload("Author").Where("name ILIKE ?", "%"+keyword+"%").Find(&books)
-	if result.Error != nil {
-		return nil, result.Error
-	}
-	return books, nil
-}
+// 	result := db.Preload("Author").Where("name ILIKE ?", "%"+keyword+"%").Find(&books)
+// 	if result.Error != nil {
+// 		return nil, result.Error
+// 	}
+// 	return books, nil
+// }
 
 // GetByIDWithAuthor returns books by ID with author
-func (r *BookRepository) GetByIDWithAuthor(id int) (model.Book, error) {
+func GetByIDWithAuthor(db *gorm.DB, id int) (model.Book, error) {
 	var book model.Book
 
-	result := r.db.Unscoped().Preload("Author").Where("id = ?", id).First(&book)
+	result := db.Preload("Author").Where("id = ?", id).First(&book)
 	if result.Error != nil {
 		return model.Book{}, result.Error
 	}
 	return book, nil
 }
 
-// GetByIDWithAuthor returns books by ID
-func (r *BookRepository) GetByID(id int) (model.Book, error) {
-	var book model.Book
+// // GetByIDWithAuthor returns books by ID
+// func GetByID(id int) (model.Book, error) {
+// 	var book model.Book
 
-	result := r.db.Unscoped().Where("id = ?", id).First(&book)
-	if result.Error != nil {
-		return model.Book{}, result.Error
-	}
-	return book, nil
-}
+// 	result := db.Unscoped().Where("id = ?", id).First(&book)
+// 	if result.Error != nil {
+// 		return model.Book{}, result.Error
+// 	}
+// 	return book, nil
+// }
 
-// DeleteBookByID deletes book by ID
-func (r *BookRepository) DeleteBookByID(id int) error {
-	result := r.db.Where("id = ?", id).Delete(&model.Book{})
-	if result.Error != nil {
-		return result.Error
-	}
-	return nil
-}
+// // DeleteBookByID deletes book by ID
+// func DeleteBookByID(id int) error {
+// 	result := db.Where("id = ?", id).Delete(&model.Book{})
+// 	if result.Error != nil {
+// 		return result.Error
+// 	}
+// 	return nil
+// }
 
-// UpdateBookStockCountByID updates book stock count by ID
-func (r *BookRepository) UpdateBookStockCountByID(id, newStockCount int) (model.Book, error) {
-	instance, _ := r.GetByIDWithAuthor(id)
-	instance.StockCount = uint(newStockCount)
-	r.db.Model(&instance).Update("stock_count", newStockCount)
+// // UpdateBookStockCountByID updates book stock count by ID
+// func UpdateBookStockCountByID(id, newStockCount int) (model.Book, error) {
+// 	instance, _ := GetByIDWithAuthor(id)
+// 	instance.StockCount = uint(newStockCount)
+// 	db.Model(&instance).Update("stock_count", newStockCount)
 
-	return instance, nil
-}
+// 	return instance, nil
+// }
 
-// **************EXTRA QUERIES************** //
+// // **************EXTRA QUERIES************** //
 
-// UpdateBookName updates book name
-func (r *BookRepository) UpdateBookName(book model.Book, newName string) (model.Book, error) {
-	book.Name = newName
-	r.db.Model(&book).Update("name", newName)
+// // UpdateBookName updates book name
+// func UpdateBookName(book model.Book, newName string) (model.Book, error) {
+// 	book.Name = newName
+// 	db.Model(&book).Update("name", newName)
 
-	return book, nil
-}
+// 	return book, nil
+// }
 
-// UpdateBookPrice updates book price
-func (r *BookRepository) UpdateBookPrice(book model.Book, newPrice float64) (model.Book, error) {
-	book.Price = newPrice
-	r.db.Model(&book).Update("price", newPrice)
+// // UpdateBookPrice updates book price
+// func UpdateBookPrice(book model.Book, newPrice float64) (model.Book, error) {
+// 	book.Price = newPrice
+// 	db.Model(&book).Update("price", newPrice)
 
-	return book, nil
-}
+// 	return book, nil
+// }
 
-// FilterBookByPriceRange filters book by price range
-func (r *BookRepository) FilterBookByPriceRange(min, max float64) ([]model.Book, error) {
-	var books []model.Book
+// // FilterBookByPriceRange filters book by price range
+// func FilterBookByPriceRange(min, max float64) ([]model.Book, error) {
+// 	var books []model.Book
 
-	result := r.db.Unscoped().Where("price BETWEEN ? AND ?", min, max).Find(&books)
-	if result.Error != nil {
-		return nil, result.Error
-	}
-	return books, nil
-}
+// 	result := db.Unscoped().Where("price BETWEEN ? AND ?", min, max).Find(&books)
+// 	if result.Error != nil {
+// 		return nil, result.Error
+// 	}
+// 	return books, nil
+// }
 
-// GetBooksWithIDs returns books by IDs
-func (r *BookRepository) GetBooksWithIDs(ids []int) ([]model.Book, error) {
-	var books []model.Book
+// // GetBooksWithIDs returns books by IDs
+// func GetBooksWithIDs(ids []int) ([]model.Book, error) {
+// 	var books []model.Book
 
-	result := r.db.Where("id IN ?", ids).Find(&books)
-	if result.Error != nil {
-		return nil, result.Error
-	}
-	return books, nil
-}
+// 	result := db.Where("id IN ?", ids).Find(&books)
+// 	if result.Error != nil {
+// 		return nil, result.Error
+// 	}
+// 	return books, nil
+// }
 
-// FilterBookByCreatedAtRange filters book by created at range
-func (r *BookRepository) FilterBookByCreatedAtRange(min, max string) ([]model.Book, error) {
-	var books []model.Book
+// // FilterBookByCreatedAtRange filters book by created at range
+// func FilterBookByCreatedAtRange(min, max string) ([]model.Book, error) {
+// 	var books []model.Book
 
-	result := r.db.Unscoped().Where("created_at BETWEEN ? AND ?", min, max).Find(&books)
-	if result.Error != nil {
-		return nil, result.Error
-	}
-	return books, nil
-}
+// 	result := db.Unscoped().Where("created_at BETWEEN ? AND ?", min, max).Find(&books)
+// 	if result.Error != nil {
+// 		return nil, result.Error
+// 	}
+// 	return books, nil
+// }
 
-// SearchBookByNameAndStockCode searches book by name and stock code
-func (r *BookRepository) SearchBookByNameOrStockCode(keyword string) ([]model.Book, error) {
-	var books []model.Book
+// // SearchBookByNameAndStockCode searches book by name and stock code
+// func SearchBookByNameOrStockCode(keyword string) ([]model.Book, error) {
+// 	var books []model.Book
 
-	result := r.db.Unscoped().Where("name ILIKE ? ", "%"+keyword+"%").Or("stock_code ILIKE ?", "%"+keyword+"%").Find(&books)
-	if result.Error != nil {
-		return nil, result.Error
-	}
-	return books, nil
-}
+// 	result := db.Unscoped().Where("name ILIKE ? ", "%"+keyword+"%").Or("stock_code ILIKE ?", "%"+keyword+"%").Find(&books)
+// 	if result.Error != nil {
+// 		return nil, result.Error
+// 	}
+// 	return books, nil
+// }
 
-// GetAllBooksOrderByPriceAsc returns all books order by price asc
-func (r *BookRepository) GetAllBooksOrderByPriceAsc() ([]model.Book, error) {
-	var books []model.Book
+// // GetAllBooksOrderByPriceAsc returns all books order by price asc
+// func GetAllBooksOrderByPriceAsc() ([]model.Book, error) {
+// 	var books []model.Book
 
-	result := r.db.Unscoped().Order("price asc").Find(&books)
-	if result.Error != nil {
-		return nil, result.Error
-	}
-	return books, nil
-}
+// 	result := db.Unscoped().Order("price asc").Find(&books)
+// 	if result.Error != nil {
+// 		return nil, result.Error
+// 	}
+// 	return books, nil
+// }
 
-// GetFirstTenBooks returns first ten books
-func (r *BookRepository) GetFirstTenBooks() ([]model.Book, error) {
-	var books []model.Book
+// // GetFirstTenBooks returns first ten books
+// func GetFirstTenBooks() ([]model.Book, error) {
+// 	var books []model.Book
 
-	result := r.db.Unscoped().Limit(10).Find(&books)
-	if result.Error != nil {
-		return nil, result.Error
-	}
-	return books, nil
-}
+// 	result := db.Unscoped().Limit(10).Find(&books)
+// 	if result.Error != nil {
+// 		return nil, result.Error
+// 	}
+// 	return books, nil
+// }
 
-// GetBooksCount returns books count
-func (r *BookRepository) GetCount() (int64, error) {
-	var count int64
+// // GetBooksCount returns books count
+// func GetCount() (int64, error) {
+// 	var count int64
 
-	result := r.db.Model(&model.Book{}).Count(&count)
-	if result.Error != nil {
-		return 0, result.Error
-	}
-	return count, nil
-}
+// 	result := db.Model(&model.Book{}).Count(&count)
+// 	if result.Error != nil {
+// 		return 0, result.Error
+// 	}
+// 	return count, nil
+// }
 
-// GetTotalStockValue returns total stock value
-func (r *BookRepository) GetTotalStockValue() (int64, error) {
-	var count int64
+// // GetTotalStockValue returns total stock value
+// func GetTotalStockValue() (int64, error) {
+// 	var count int64
 
-	err := r.db.Model(&model.Book{}).Select("sum(stock_count)").Row().Scan(&count)
-	if err != nil {
-		return 0, err
-	}
-	return count, nil
-}
+// 	err := db.Model(&model.Book{}).Select("sum(stock_count)").Row().Scan(&count)
+// 	if err != nil {
+// 		return 0, err
+// 	}
+// 	return count, nil
+// }
 
-// GetAvgPrice returns average price
-func (r *BookRepository) GetAvgPrice() (float64, error) {
-	var avgPrice float64
+// // GetAvgPrice returns average price
+// func GetAvgPrice() (float64, error) {
+// 	var avgPrice float64
 
-	err := r.db.Model(&model.Book{}).Select("avg(price)").Row().Scan(&avgPrice)
-	if err != nil {
-		return 0, err
-	}
-	return avgPrice, nil
-}
+// 	err := db.Model(&model.Book{}).Select("avg(price)").Row().Scan(&avgPrice)
+// 	if err != nil {
+// 		return 0, err
+// 	}
+// 	return avgPrice, nil
+// }
