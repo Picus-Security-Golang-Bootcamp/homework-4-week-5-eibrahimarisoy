@@ -28,14 +28,34 @@ func SaveBook(db *gorm.DB, book *model.Book) (*model.Book, error) {
 // }
 
 // GetBooksWithAuthor returns books with author
-func GetBooksWithAuthor(db *gorm.DB) ([]model.Book, error) {
-	var books []model.Book
+func GetBooksWithAuthor(db *gorm.DB, args model.Args) (*model.Data, error) {
+	books := []model.Book{}
+	var filteredData, totalData int64
 
-	result := db.Preload("Author").Order("id").Find(&books)
+	table := "books"
+	query := db.Select(table + ".*")
+	query = query.Scopes(Paginate(args))
+	query = query.Scopes(Search(args.Search))
+
+	result := query.Preload("Author").Order("id").Find(&books)
 	if result.Error != nil {
 		return nil, result.Error
 	}
-	return books, nil
+
+	query = query.Offset(0)
+	query.Table(table).Count(&filteredData)
+
+	// // Count total table
+	db.Table(table).Count(&totalData)
+
+	data := model.Data{
+		TotalData:    totalData,
+		FilteredData: filteredData,
+		Data:         books,
+	}
+
+	return &data, nil
+
 }
 
 // // FindByName returns books by name

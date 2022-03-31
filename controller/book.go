@@ -11,15 +11,34 @@ import (
 )
 
 func (c *Controller) ListBook(w http.ResponseWriter, req *http.Request) {
+	args := model.Args{Sort: "ID", Order: "desc", Offset: "0", Limit: "10", Search: ""}
 
-	results, err := service.GetBooksWithAuthor(c.DB)
+	v := req.URL.Query()
+
+	if v["Sort"] != nil {
+		args.Sort = v.Get("Sort")
+	}
+
+	if v["Limit"] != nil {
+		args.Limit = v.Get("Limit")
+	}
+
+	if v["Offset"] != nil {
+		args.Offset = v.Get("Offset")
+	}
+
+	if v["Search"] != nil {
+		args.Search = v.Get("Search")
+	}
+
+	data, err := service.GetBooksWithAuthor(c.DB, args)
 
 	if err != nil {
 		RespondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	RespondWithJSON(w, http.StatusOK, results)
+	RespondWithJSON(w, http.StatusOK, data)
 
 }
 
