@@ -33,20 +33,20 @@ $ go run main.go
 ## Routes
 Default **BookStore API** routes are listed below. 
 
-| METHOD  | ROUTE               | FUNCTION                                                                                                             |
-|---------|---------------------|----------------------------------------------------------------------------------------------------------------------|
-| GET     | /authors/           | github.com/Picus-Security-Golang-Bootcamp/homework-4-week-5-eibrahimarisoy/controller.(*Controller).GetAuthors       |
-| GET     | /authors/:id        | github.com/Picus-Security-Golang-Bootcamp/homework-4-week-5-eibrahimarisoy/controller.(*Controller).GetAuthor        |
-| POST    | /authors/           | github.com/Picus-Security-Golang-Bootcamp/homework-4-week-5-eibrahimarisoy/controller.(*Controller).CreateAuthor     |
-| PUT     | /authors/:id        | github.com/Picus-Security-Golang-Bootcamp/homework-4-week-5-eibrahimarisoy/controller.(*Controller).UpdateAuthor     |
-| DELETE  | /authors/:id        | github.com/Picus-Security-Golang-Bootcamp/homework-4-week-5-eibrahimarisoy/controller.(*Controller).DeleteAuthor     |
-| GET     | /authors/:id/books  | github.com/Picus-Security-Golang-Bootcamp/homework-4-week-5-eibrahimarisoy/controller.(*Controller).ListAuthorsBooks |
-| GET     | /books/             | github.com/Picus-Security-Golang-Bootcamp/homework-4-week-5-eibrahimarisoy/controller.(*Controller).GetBooks         |
-| GET     | /books/:id          | github.com/Picus-Security-Golang-Bootcamp/homework-4-week-5-eibrahimarisoy/controller.(*Controller).GetBook          |
-| POST    | /books/             | github.com/Picus-Security-Golang-Bootcamp/homework-4-week-5-eibrahimarisoy/controller.(*Controller).CreateBook       |
-| PUT     | /books/:id          | github.com/Picus-Security-Golang-Bootcamp/homework-4-week-5-eibrahimarisoy/controller.(*Controller).UpdateBook       |
-| DELETE  | /books/:id          | github.com/Picus-Security-Golang-Bootcamp/homework-4-week-5-eibrahimarisoy/controller.(*Controller).DeleteBook       |
-| POST    | /books/:id/buy      | github.com/Picus-Security-Golang-Bootcamp/homework-4-week-5-eibrahimarisoy/controller.(*Controller).BuyBook          |
+| METHOD  | ROUTE               | FUNCTIONS                      |
+|---------|---------------------|--------------------------------|
+| GET     | /authors/           | (*Controller).ListAuthors      |
+| GET     | /authors/:id        | (*Controller).GetAuthor        |
+| POST    | /authors/           | (*Controller).CreateAuthor     |
+| PUT     | /authors/:id        | (*Controller).UpdateAuthor     |
+| DELETE  | /authors/:id        | (*Controller).DeleteAuthor     |
+| GET     | /authors/:id/books  | (*Controller).ListAuthorsBooks |
+| GET     | /books/             | (*Controller).ListBooks        |
+| GET     | /books/:id          | (*Controller).GetBook          |
+| POST    | /books/             | (*Controller).CreateBook       |
+| PUT     | /books/:id          | (*Controller).UpdateBook       |
+| DELETE  | /books/:id          | (*Controller).DeleteBook       |
+| POST    | /books/:id/buy      | (*Controller).BuyBook          |
 
 # Models
 ## Book Model

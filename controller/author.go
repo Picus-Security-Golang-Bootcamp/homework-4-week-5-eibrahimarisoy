@@ -11,7 +11,7 @@ import (
 )
 
 // ListAuthor controller list all authors
-func (c *Controller) ListAuthor(w http.ResponseWriter, req *http.Request) {
+func (c *Controller) ListAuthors(w http.ResponseWriter, req *http.Request) {
 
 	results, err := service.GetAuthorsWithBooks(c.DB)
 

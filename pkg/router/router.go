@@ -19,7 +19,7 @@ func InitializeRoutes(db *gorm.DB) *mux.Router {
 	api := controller.Controller{DB: db}
 	// routers
 	author := r.PathPrefix("/authors").Subrouter()
-	author.HandleFunc("", api.ListAuthor).Methods(http.MethodGet)
+	author.HandleFunc("", api.ListAuthors).Methods(http.MethodGet)
 	author.HandleFunc("", api.CreateAuthor).Methods(http.MethodPost)
 	author.HandleFunc("/{id}", api.GetAuthor).Methods(http.MethodGet)
 	author.HandleFunc("/{id}", api.UpdateAuthor).Methods(http.MethodPut)
@@ -28,7 +28,7 @@ func InitializeRoutes(db *gorm.DB) *mux.Router {
 
 	book := r.PathPrefix("/books").Subrouter()
 	book.HandleFunc("", api.CreateBook).Methods(http.MethodPost)
-	book.HandleFunc("", api.ListBook).Methods(http.MethodGet)
+	book.HandleFunc("", api.ListBooks).Methods(http.MethodGet)
 	book.HandleFunc("/{id}", api.GetBook).Methods(http.MethodGet)
 	book.HandleFunc("/{id}", api.UpdateBook).Methods(http.MethodPut)
 	book.HandleFunc("/{id}", api.DeleteBook).Methods(http.MethodDelete)

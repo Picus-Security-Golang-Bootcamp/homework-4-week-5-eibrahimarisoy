@@ -12,7 +12,7 @@ import (
 )
 
 // ListBooks controller for list all books
-func (c *Controller) ListBook(w http.ResponseWriter, req *http.Request) {
+func (c *Controller) ListBooks(w http.ResponseWriter, req *http.Request) {
 	args := model.Args{Sort: "ID", Order: "desc", Offset: "0", Limit: "10", Search: ""}
 
 	v := req.URL.Query()
