@@ -2,7 +2,6 @@ package controller
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"strconv"
 
@@ -11,7 +10,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
-// AuthorList
+// ListAuthor controller list all authors
 func (c *Controller) ListAuthor(w http.ResponseWriter, req *http.Request) {
 
 	results, err := service.GetAuthorsWithBooks(c.DB)
@@ -25,13 +24,16 @@ func (c *Controller) ListAuthor(w http.ResponseWriter, req *http.Request) {
 
 }
 
-// AuthorGet
+// GetAuthor controller get author by id
 func (c *Controller) GetAuthor(w http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
 
-	id, _ := strconv.Atoi(vars["id"])
+	id, err := strconv.Atoi(vars["id"])
 
-	fmt.Println(id)
+	if err != nil {
+		RespondWithError(w, http.StatusBadRequest, "Invalid Author ID")
+		return
+	}
 
 	results, err := service.GetByIDWithBooks(c.DB, id)
 
@@ -44,7 +46,7 @@ func (c *Controller) GetAuthor(w http.ResponseWriter, req *http.Request) {
 
 }
 
-// AuthorDelete
+// DeleteAuthor controller delete author by id
 func (c *Controller) DeleteAuthor(w http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
 
@@ -61,7 +63,7 @@ func (c *Controller) DeleteAuthor(w http.ResponseWriter, req *http.Request) {
 
 }
 
-// AuthorCreate
+// CreateAuthor controller create author
 func (c *Controller) CreateAuthor(w http.ResponseWriter, req *http.Request) {
 
 	var author *model.Author
@@ -70,6 +72,7 @@ func (c *Controller) CreateAuthor(w http.ResponseWriter, req *http.Request) {
 		RespondWithError(w, http.StatusBadRequest, "Invalid request payload")
 		return
 	}
+	defer req.Body.Close()
 
 	author, err := service.CreateAuthor(c.DB, author)
 
@@ -82,7 +85,7 @@ func (c *Controller) CreateAuthor(w http.ResponseWriter, req *http.Request) {
 
 }
 
-// UpdateAuthor controller
+// UpdateAuthor controller update author
 func (c *Controller) UpdateAuthor(w http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
 
@@ -117,5 +120,26 @@ func (c *Controller) UpdateAuthor(w http.ResponseWriter, req *http.Request) {
 	}
 
 	RespondWithJSON(w, http.StatusOK, author)
+
+}
+
+// ListAuthorsBooks controller list author's books
+func (c *Controller) ListAuthorsBooks(w http.ResponseWriter, req *http.Request) {
+	vars := mux.Vars(req)
+
+	id, err := strconv.ParseUint(vars["id"], 10, 64)
+	if err != nil {
+		RespondWithError(w, http.StatusBadRequest, "Invalid Author ID")
+		return
+	}
+
+	results, err := service.GetBooksByAuthorID(c.DB, id)
+
+	if err != nil {
+		RespondWithError(w, http.StatusNotFound, err.Error())
+		return
+	}
+
+	RespondWithJSON(w, http.StatusOK, results)
 
 }

@@ -2,6 +2,7 @@ package controller
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -10,6 +11,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
+// ListBooks controller for list all books
 func (c *Controller) ListBook(w http.ResponseWriter, req *http.Request) {
 	args := model.Args{Sort: "ID", Order: "desc", Offset: "0", Limit: "10", Search: ""}
 
@@ -38,28 +40,38 @@ func (c *Controller) ListBook(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	limit, _ := strconv.ParseInt(args.Limit, 10, 64)
+	offset, _ := strconv.ParseInt(args.Offset, 10, 64)
+
+	data.Limit = limit
+	data.Offset = offset
+
 	RespondWithJSON(w, http.StatusOK, data)
 
 }
 
-// controller
+// GetBook controller get book by id
 func (c *Controller) GetBook(w http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
 
-	id, _ := strconv.Atoi(vars["id"])
+	id, err := strconv.Atoi(vars["id"])
+	if err != nil {
+		RespondWithError(w, http.StatusBadRequest, "Invalid Book ID")
+		return
+	}
 
-	results, err := service.GetByIDWithAuthor(c.DB, id)
+	result, err := service.GetBookByIDWithAuthor(c.DB, uint(id))
 
 	if err != nil {
 		RespondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	RespondWithJSON(w, http.StatusOK, results)
+	RespondWithJSON(w, http.StatusOK, result)
 
 }
 
-// BookDelete controller
+// DeleteBook controller delete book by id
 func (c *Controller) DeleteBook(w http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
 
@@ -78,7 +90,7 @@ func (c *Controller) DeleteBook(w http.ResponseWriter, req *http.Request) {
 
 }
 
-// CreatePost controller
+// CreateBook controller create new book
 func (c *Controller) CreateBook(w http.ResponseWriter, req *http.Request) {
 	book := new(model.Book) // model.Book{}
 
@@ -102,7 +114,7 @@ func (c *Controller) CreateBook(w http.ResponseWriter, req *http.Request) {
 
 }
 
-// UpdatePost controller
+// UpdateBook controller update book by id
 func (c *Controller) UpdateBook(w http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
 
@@ -113,9 +125,9 @@ func (c *Controller) UpdateBook(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	newBook := new(model.Book) // model.Book{}
+	book := new(model.Book)
 
-	if err := json.NewDecoder(req.Body).Decode(&newBook); err != nil {
+	if err := json.NewDecoder(req.Body).Decode(&book); err != nil {
 		RespondWithError(w, http.StatusBadRequest, "Invalid request payload")
 		return
 	}
@@ -128,15 +140,58 @@ func (c *Controller) UpdateBook(w http.ResponseWriter, req *http.Request) {
 
 	defer req.Body.Close()
 
-	newBook.ID = uint(id)
+	book.ID = uint(id)
 
-	newBook, err = service.UpdateBookByID(c.DB, newBook)
+	book, err = service.UpdateBookByID(c.DB, book)
 
 	if err != nil {
 		RespondWithError(w, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	RespondWithJSON(w, http.StatusOK, newBook)
+	RespondWithJSON(w, http.StatusOK, book)
+
+}
+
+// BuyBook controller buy book by id with quantity payload
+func (c *Controller) BuyBook(w http.ResponseWriter, req *http.Request) {
+	vars := mux.Vars(req)
+
+	id, err := strconv.Atoi(vars["id"])
+
+	if err != nil {
+		RespondWithError(w, http.StatusBadRequest, "Invalid Book ID")
+		return
+	}
+
+	quantity := new(model.Quantity)
+
+	if err := json.NewDecoder(req.Body).Decode(&quantity); err != nil {
+		RespondWithError(w, http.StatusBadRequest, "Invalid request payload")
+		return
+	}
+	defer req.Body.Close()
+
+	instance, err := service.GetBookByID(c.DB, id)
+	if err != nil {
+		RespondWithError(w, http.StatusNotFound, "Book not found")
+		return
+	}
+
+	if instance.StockCount < quantity.Amount {
+		RespondWithError(w, http.StatusBadRequest, "Not enough quantity")
+		return
+	}
+	fmt.Println(instance.StockCount)
+	fmt.Println(quantity.Amount)
+
+	remain := instance.StockCount - quantity.Amount
+
+	if err := service.UpdateBookStockCount(c.DB, &instance, remain); err != nil {
+		RespondWithError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	RespondWithJSON(w, http.StatusOK, instance)
 
 }

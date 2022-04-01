@@ -10,14 +10,14 @@ type BookSlice []Book
 
 type Book struct {
 	gorm.Model
-	Name       string  `json:"name"`
-	Pages      uint    `json:"pages"`
+	Name       *string `json:"name"`
+	Pages      *uint   `json:"pages"`
 	StockCount uint    `json:"stock_count"`
 	Price      float64 `json:"price"`
-	StockCode  string  `json:"stock_code" gorm:"unique"`
-	ISBN       string  `gorm:"unique"`
-	AuthorID   uint    `json:"author_id"`
-	Author     Author  `gorm:"OnDelete:SET NULL"`
+	StockCode  *string `json:"stock_code" gorm:"unique"`
+	ISBN       *string `gorm:"unique"`
+	AuthorID   *uint   `json:"author_id,omitempty"`
+	Author     *Author `gorm:"OnDelete:SET NULL" json:"author,omitempty"`
 }
 
 func (Book) TableName() string {

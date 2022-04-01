@@ -5,22 +5,7 @@ import (
 	"gorm.io/gorm"
 )
 
-type AuthorRepository struct {
-	db *gorm.DB
-}
-
-// NewAuthorRepository returns a new AuthorRepository
-func NewAuthorRepository(db *gorm.DB) *AuthorRepository {
-	return &AuthorRepository{db: db}
-
-}
-
-// Migrations runs the database migrations
-func Migrations(db *gorm.DB) {
-	db.AutoMigrate(&model.Author{})
-}
-
-// AuthorCreate creates an author
+// CreateAuthor creates an author
 func CreateAuthor(db *gorm.DB, author *model.Author) (*model.Author, error) {
 	result := db.Where("name = ?", author.Name).FirstOrCreate(author)
 
@@ -31,7 +16,7 @@ func CreateAuthor(db *gorm.DB, author *model.Author) (*model.Author, error) {
 	return author, nil
 }
 
-// GetByID returns an author by id
+// GetAuthorByID returns an author by id
 func GetAuthorByID(db *gorm.DB, id int) (model.Author, error) {
 	var author model.Author
 
@@ -42,23 +27,12 @@ func GetAuthorByID(db *gorm.DB, id int) (model.Author, error) {
 	return author, nil
 }
 
-// UpdateAuthorByID updates author by id
+// UpdateAuthor updates author
 func UpdateAuthor(db *gorm.DB, author *model.Author) (*model.Author, error) {
 	if err := db.Save(&author).Error; err != nil {
 		return author, err
 	}
 	return author, nil
-}
-
-// FindByName returns an author by name
-func FindByName(db *gorm.DB, name string) ([]model.Author, error) {
-	var authors []model.Author
-
-	result := db.Where("name ILIKE ?", "%"+name+"%").Find(&authors)
-	if result.Error != nil {
-		return nil, result.Error
-	}
-	return authors, nil
 }
 
 // GetByIDWithBooks returns author with books
@@ -82,20 +56,9 @@ func GetAuthorsWithBooks(db *gorm.DB) ([]model.Author, error) {
 	return authors, nil
 }
 
-// **************EXTRA QUERIES************** //
-
 // DeleteByID deletes author by id
 func DeleteAuthorByID(db *gorm.DB, id int) error {
 	result := db.Where("id = ?", id).Delete(&model.Author{})
-	if result.Error != nil {
-		return result.Error
-	}
-	return nil
-}
-
-// UpdateAuthorName updates author name
-func UpdateAuthorName(db *gorm.DB, author *model.Author) error {
-	result := db.Model(&author).Where("id = ?", author.ID).Update("name", author.Name)
 	if result.Error != nil {
 		return result.Error
 	}

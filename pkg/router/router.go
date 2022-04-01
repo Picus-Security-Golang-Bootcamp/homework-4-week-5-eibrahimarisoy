@@ -9,6 +9,7 @@ import (
 	"gorm.io/gorm"
 )
 
+// InitializeRoutes initializes the routes for the application
 func InitializeRoutes(db *gorm.DB) *mux.Router {
 	r := mux.NewRouter()
 
@@ -23,6 +24,7 @@ func InitializeRoutes(db *gorm.DB) *mux.Router {
 	author.HandleFunc("/{id}", api.GetAuthor).Methods(http.MethodGet)
 	author.HandleFunc("/{id}", api.UpdateAuthor).Methods(http.MethodPut)
 	author.HandleFunc("/{id}", api.DeleteAuthor).Methods(http.MethodDelete)
+	author.HandleFunc("/{id}/books", api.ListAuthorsBooks).Methods(http.MethodGet)
 
 	book := r.PathPrefix("/books").Subrouter()
 	book.HandleFunc("", api.CreateBook).Methods(http.MethodPost)
@@ -30,5 +32,7 @@ func InitializeRoutes(db *gorm.DB) *mux.Router {
 	book.HandleFunc("/{id}", api.GetBook).Methods(http.MethodGet)
 	book.HandleFunc("/{id}", api.UpdateBook).Methods(http.MethodPut)
 	book.HandleFunc("/{id}", api.DeleteBook).Methods(http.MethodDelete)
+	book.HandleFunc("/{id}/buy", api.BuyBook).Methods(http.MethodPost)
+
 	return r
 }

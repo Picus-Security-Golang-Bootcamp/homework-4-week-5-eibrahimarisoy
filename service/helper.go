@@ -18,6 +18,7 @@ func Search(search string) func(db *gorm.DB) *gorm.DB {
 	}
 }
 
+// Paginate adds limit and offset to query
 func Paginate(args model.Args) func(db *gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
 		offset, _ := strconv.Atoi(args.Offset)

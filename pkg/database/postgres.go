@@ -9,6 +9,7 @@ import (
 	"gorm.io/gorm"
 )
 
+// NewPsqlDB creates a new database connection
 func NewPsqlDB() (*gorm.DB, error) {
 	dataSourceName := fmt.Sprintf("host=%s port=%s user=%s dbname=%s sslmode=disable password=%s",
 		os.Getenv("DB_HOST"),
